@@ -234,9 +234,7 @@ button {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background:
-    linear-gradient(180deg, rgba(50, 50, 50, 0.45) 0%, rgba(50, 50, 50, 0.25) 35%, rgba(50, 50, 50, 0.72) 100%),
-    linear-gradient(90deg, rgba(50, 50, 50, 0.35) 0%, transparent 55%);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .hero-nav,
