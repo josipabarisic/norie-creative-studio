@@ -179,9 +179,10 @@ button {
 /* Top bar */
 .top-bar {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0.45rem;
   padding: 0.7rem 1.25rem;
   background: var(--ink);
   color: var(--bg);
@@ -196,6 +197,10 @@ button {
 
 .top-bar:hover { background: var(--accent-slate); }
 
+.top-bar-extra {
+  display: none;
+}
+
 .top-bar-em {
   font-family: var(--font-display);
   font-style: italic;
@@ -205,8 +210,9 @@ button {
   letter-spacing: 0.02em;
   text-transform: none;
   text-decoration: none;
-  display: inline-block;
-  transform: translateY(-0.12em);
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 /* Hero */
@@ -234,7 +240,7 @@ button {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.65);
 }
 
 .hero-nav,
@@ -606,6 +612,21 @@ button {
 /* Desktop */
 @media (min-width: 800px) {
   .nav-toggle { display: none; }
+
+  .top-bar {
+    flex-direction: row;
+    gap: 0.35rem;
+  }
+
+  .top-bar-extra {
+    display: inline;
+  }
+
+  .top-bar-em {
+    display: inline-block;
+    width: auto;
+    transform: translateY(-0.12em);
+  }
 
   .brand-logo {
     height: 36px;
