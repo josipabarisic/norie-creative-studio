@@ -315,6 +315,11 @@ button {
   transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
 }
 
+.nav-open .nav-toggle {
+  position: relative;
+  z-index: 120;
+}
+
 .nav-open .nav-toggle span:first-child {
   transform: translateY(0.22rem) rotate(45deg);
 }
