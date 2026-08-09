@@ -558,6 +558,8 @@ button {
   align-items: center;
   justify-content: center;
   background: #000;
+  border-radius: 8px;
+  margin-inline: 1.625rem;
 }
 
 .newsletter-bg {
@@ -734,6 +736,10 @@ button {
 
   .about {
     padding-top: clamp(4.5rem, 12vw, 8rem);
+  }
+
+  .newsletter {
+    margin-inline: 1.25rem;
   }
 
   .about-grid {
