@@ -53,7 +53,7 @@
    * Dok je prazno, Norie forma ostaje vizualno tu, ali prijava nije spojena
    * (nema lažnog successa).
    */
-  const FLODESK_FORM_ID = "";
+  const FLODESK_FORM_ID = "6a786294f6a3ec722d645dd9";
 
   const form = document.getElementById("newsletter-form");
   const emailInput = document.getElementById("newsletter-email");
