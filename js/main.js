@@ -41,35 +41,10 @@
   }
 
   /**
-   * Newsletter via Flodesk inline embed (no API key in the browser).
-   *
-   * Josipa: u Flodesk napravi Inline form → Embed → kopiraj formId
-   * (hex string iz koda, npr. formId: '...' ili id="fd-form-...").
-   * Zalijepi taj ID dolje u FLODESK_FORM_ID.
-   *
-   * Primjer:
-   * const FLODESK_FORM_ID = "5e95c67cb9c153002b5aa729";
-   *
-   * Dok je prazno, Norie forma ostaje vizualno tu, ali prijava nije spojena
-   * (nema lažnog successa).
+   * Flodesk inline form only (no custom Norie chrome / placeholder form).
+   * Mount target in HTML: #fd-form-{FLODESK_FORM_ID}
    */
   const FLODESK_FORM_ID = "6a786294f6a3ec722d645dd9";
-
-  const form = document.getElementById("newsletter-form");
-  const emailInput = document.getElementById("newsletter-email");
-  const submitBtn = document.getElementById("newsletter-submit");
-  const statusEl = document.getElementById("newsletter-status");
-  const embedRoot = document.getElementById("newsletter-flodesk");
-
-  const setStatus = (message, type) => {
-    if (!statusEl) return;
-    statusEl.hidden = !message;
-    statusEl.textContent = message;
-    statusEl.classList.toggle("is-success", type === "success");
-    statusEl.classList.toggle("is-error", type === "error");
-  };
-
-  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const ensureFlodeskUniversal = () => {
     // Official Flodesk header snippet pattern (assets.flodesk.com/universal).
@@ -105,44 +80,24 @@
   };
 
   const mountFlodeskInline = (formId) => {
-    if (!embedRoot || !form) return;
-
-    const containerId = `fd-form-${formId}`;
-    embedRoot.innerHTML = "";
-    const container = document.createElement("div");
-    container.id = containerId;
-    embedRoot.appendChild(container);
-    embedRoot.hidden = false;
-    form.hidden = true;
+    const containerEl = `#fd-form-${formId}`;
+    if (!document.querySelector(containerEl)) return;
 
     ensureFlodeskUniversal();
     window.fd("form", {
       formId,
-      containerEl: `#${containerId}`,
+      containerEl,
     });
   };
 
-  if (FLODESK_FORM_ID) {
+  const initFlodesk = () => {
+    if (!FLODESK_FORM_ID) return;
     mountFlodeskInline(FLODESK_FORM_ID.trim());
-    return;
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFlodesk);
+  } else {
+    initFlodesk();
   }
-
-  if (!form || !emailInput || !submitBtn || !statusEl) return;
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    setStatus("", null);
-
-    const email = emailInput.value.trim();
-    if (!isValidEmail(email)) {
-      setStatus("Unesi valjanu email adresu.", "error");
-      emailInput.focus();
-      return;
-    }
-
-    setStatus(
-      "Prijava još nije spojena na Flodesk. Piši mi na noriecreativestudio@gmail.com pa te dodam.",
-      "error"
-    );
-  });
 })();

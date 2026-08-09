@@ -555,98 +555,6 @@ button {
   background: var(--bg-warm);
 }
 
-.newsletter-lead {
-  margin: -0.5rem 0 2.25rem;
-  max-width: 34rem;
-  color: var(--ink-warm);
-  font-size: 1.05rem;
-}
-
-.newsletter-form {
-  max-width: 34rem;
-}
-
-.newsletter-embed {
-  max-width: 34rem;
-  min-height: 4.5rem;
-}
-
-.newsletter-embed[hidden],
-.newsletter-form[hidden] {
-  display: none !important;
-}
-
-.newsletter-embed iframe,
-.newsletter-embed > div {
-  max-width: 100%;
-}
-
-.newsletter-fields {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.newsletter-label {
-  font-family: var(--font-label);
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--stone);
-}
-
-.newsletter-input {
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.85rem 0;
-  border: 0;
-  border-bottom: 1px solid rgba(50, 50, 50, 0.28);
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  outline: none;
-  transition: border-color 0.25s var(--ease);
-}
-
-.newsletter-input::placeholder {
-  color: var(--taupe);
-}
-
-.newsletter-input:focus {
-  border-bottom-color: var(--accent-slate);
-}
-
-.newsletter-input:invalid:not(:placeholder-shown):not(:focus) {
-  border-bottom-color: #8a4a3a;
-}
-
-.newsletter-fields .btn {
-  justify-self: start;
-  margin-top: 0.35rem;
-}
-
-.newsletter-hint {
-  margin: 1rem 0 0;
-  font-size: 0.88rem;
-  color: var(--stone);
-}
-
-.newsletter-status {
-  margin: 1rem 0 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.newsletter-status.is-success {
-  color: var(--accent-slate);
-}
-
-.newsletter-status.is-error {
-  color: #8a4a3a;
-}
-
 .cta-band {
   background: var(--ink);
   color: var(--bg);
@@ -796,20 +704,6 @@ button {
     grid-template-columns: 0.9fr 1.1fr;
     gap: 4rem;
     align-items: center;
-  }
-
-  .newsletter-fields {
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    column-gap: 1rem;
-  }
-
-  .newsletter-label {
-    grid-column: 1 / -1;
-  }
-
-  .newsletter-fields .btn {
-    margin-top: 0;
   }
 
   .footer-inner {
