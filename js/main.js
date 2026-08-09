@@ -81,7 +81,23 @@
 
   const mountFlodeskInline = (formId) => {
     const containerEl = `#fd-form-${formId}`;
-    if (!document.querySelector(containerEl)) return;
+    const root = document.querySelector(containerEl);
+    if (!root) return;
+
+    const stripNjezna = () => {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let node = walker.nextNode();
+      while (node) {
+        if (node.nodeValue && node.nodeValue.includes("nježna pisma")) {
+          node.nodeValue = node.nodeValue.replaceAll("nježna pisma", "pisma");
+        }
+        node = walker.nextNode();
+      }
+    };
+
+    const observer = new MutationObserver(stripNjezna);
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    stripNjezna();
 
     ensureFlodeskUniversal();
     window.fd("form", {
