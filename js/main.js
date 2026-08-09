@@ -41,13 +41,18 @@
   }
 
   /**
-   * Newsletter signup via Formspree (or any compatible POST endpoint).
+   * Newsletter via MailerLite (no API key in the browser).
    *
-   * Josipa: create a free form at https://formspree.io/ → New Form →
-   * paste the endpoint below, e.g. "https://formspree.io/f/xxxxxxxx".
-   * Leave empty until then; the UI will say the signup is not connected yet.
+   * Josipa: u MailerLite napravi Embedded form, otvori Overview → Embed → HTML,
+   * u kodu nađi action="https://assets.mailerlite.com/jsonp/.../subscribe"
+   * i zalijepi taj URL dolje u MAILERLITE_FORM_ACTION (samo URL, bez navodnika).
+   *
+   * Primjer oblika:
+   * "https://assets.mailerlite.com/jsonp/123456/forms/98765432101234567/subscribe"
+   *
+   * Dok je prazno, forma pokazuje da prijava još nije spojena.
    */
-  const NEWSLETTER_ENDPOINT = "";
+  const MAILERLITE_FORM_ACTION = "";
 
   const form = document.getElementById("newsletter-form");
   const emailInput = document.getElementById("newsletter-email");
@@ -65,6 +70,60 @@
 
   const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+  const submitToMailerLite = (actionUrl, email) =>
+    new Promise((resolve, reject) => {
+      const callbackName = `mlCb_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+      const script = document.createElement("script");
+      let settled = false;
+
+      const cleanup = () => {
+        window.clearTimeout(timer);
+        try {
+          delete window[callbackName];
+        } catch (_err) {
+          window[callbackName] = undefined;
+        }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      };
+
+      const finish = (fn, value) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        fn(value);
+      };
+
+      const timer = window.setTimeout(() => {
+        finish(reject, new Error("MailerLite timeout"));
+      }, 12000);
+
+      window[callbackName] = (response) => {
+        if (response && (response.success === true || response.success === "true")) {
+          finish(resolve, response);
+          return;
+        }
+        finish(reject, response || new Error("MailerLite subscribe failed"));
+      };
+
+      let url;
+      try {
+        url = new URL(actionUrl);
+      } catch (_err) {
+        finish(reject, new Error("Invalid MailerLite form action URL"));
+        return;
+      }
+
+      url.searchParams.set("fields[email]", email);
+      url.searchParams.set("ml-submit", "1");
+      url.searchParams.set("anticsrf", "true");
+      url.searchParams.set("callback", callbackName);
+
+      script.src = url.toString();
+      script.async = true;
+      script.onerror = () => finish(reject, new Error("MailerLite script error"));
+      document.body.appendChild(script);
+    });
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     setStatus("", null);
@@ -76,7 +135,7 @@
       return;
     }
 
-    if (!NEWSLETTER_ENDPOINT) {
+    if (!MAILERLITE_FORM_ACTION) {
       setStatus(
         "Prijava još nije spojena. Piši mi na noriecreativestudio@gmail.com pa te dodam.",
         "error"
@@ -89,22 +148,7 @@
     submitBtn.textContent = "Šaljem…";
 
     try {
-      const response = await fetch(NEWSLETTER_ENDPOINT, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          _subject: "Nova prijava na NORIE newsletter",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Newsletter signup failed (${response.status})`);
-      }
-
+      await submitToMailerLite(MAILERLITE_FORM_ACTION, email);
       form.reset();
       setStatus("Hvala. Bit ćeš među prvima kad pošaljem iduću bilješku.", "success");
     } catch (_error) {

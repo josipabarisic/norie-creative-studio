@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
   <link rel="preconnect" href="https://use.typekit.net" crossorigin>
   <link rel="stylesheet" href="https://use.typekit.net/bpk3muw.css">
-  <link rel="stylesheet" href="css/styles.css?v=20260809i">
+  <link rel="stylesheet" href="css/styles.css?v=20260809j">
 </head>
 <body>
 
@@ -156,19 +156,21 @@
         <h2 class="display" id="newsletter-title">Bilješke o brendu, kad imaju što reći.</h2>
         <p class="newsletter-lead">Povremeno ti šaljem kratke note o poziciji, ponudi i vizualima. Bez gužve u inboxu.</p>
 
-        <form class="newsletter-form" id="newsletter-form" novalidate>
+        <form class="newsletter-form" id="newsletter-form" method="post" novalidate>
           <div class="newsletter-fields">
             <label class="newsletter-label" for="newsletter-email">Email adresa</label>
             <input
               class="newsletter-input"
               type="email"
               id="newsletter-email"
-              name="email"
+              name="fields[email]"
               autocomplete="email"
               inputmode="email"
               required
               placeholder="tvoja@adresa.com"
             >
+            <input type="hidden" name="ml-submit" value="1">
+            <input type="hidden" name="anticsrf" value="true">
             <button class="btn btn-ink" type="submit" id="newsletter-submit">Prijavi se</button>
           </div>
           <p class="newsletter-hint">Možeš se odjaviti kad god želiš.</p>
@@ -213,6 +215,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=20260809i"></script>
+  <script src="js/main.js?v=20260809j"></script>
 </body>
 </html>
