@@ -558,7 +558,6 @@ button {
   align-items: center;
   justify-content: center;
   background: #000;
-  border-radius: 8px;
 }
 
 .newsletter-bg {
@@ -590,6 +589,13 @@ button {
   width: 100%;
   max-width: 100%;
   margin-inline: auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.newsletter-inner > [id^="fd-form-"] > * {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .cta-band {
@@ -735,10 +741,6 @@ button {
 
   .about {
     padding-top: clamp(4.5rem, 12vw, 8rem);
-  }
-
-  .newsletter {
-    margin-inline: 1.25rem;
   }
 
   .about-grid {
