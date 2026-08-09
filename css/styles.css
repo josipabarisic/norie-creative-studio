@@ -566,6 +566,21 @@ button {
   max-width: 34rem;
 }
 
+.newsletter-embed {
+  max-width: 34rem;
+  min-height: 4.5rem;
+}
+
+.newsletter-embed[hidden],
+.newsletter-form[hidden] {
+  display: none !important;
+}
+
+.newsletter-embed iframe,
+.newsletter-embed > div {
+  max-width: 100%;
+}
+
 .newsletter-fields {
   display: grid;
   gap: 0.85rem;

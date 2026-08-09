@@ -41,27 +41,28 @@
   }
 
   /**
-   * Newsletter via MailerLite (no API key in the browser).
+   * Newsletter via Flodesk inline embed (no API key in the browser).
    *
-   * Josipa: u MailerLite napravi Embedded form, otvori Overview → Embed → HTML,
-   * u kodu nađi action="https://assets.mailerlite.com/jsonp/.../subscribe"
-   * i zalijepi taj URL dolje u MAILERLITE_FORM_ACTION (samo URL, bez navodnika).
+   * Josipa: u Flodesk napravi Inline form → Embed → kopiraj formId
+   * (hex string iz koda, npr. formId: '...' ili id="fd-form-...").
+   * Zalijepi taj ID dolje u FLODESK_FORM_ID.
    *
-   * Primjer oblika:
-   * "https://assets.mailerlite.com/jsonp/123456/forms/98765432101234567/subscribe"
+   * Primjer:
+   * const FLODESK_FORM_ID = "5e95c67cb9c153002b5aa729";
    *
-   * Dok je prazno, forma pokazuje da prijava još nije spojena.
+   * Dok je prazno, Norie forma ostaje vizualno tu, ali prijava nije spojena
+   * (nema lažnog successa).
    */
-  const MAILERLITE_FORM_ACTION = "";
+  const FLODESK_FORM_ID = "";
 
   const form = document.getElementById("newsletter-form");
   const emailInput = document.getElementById("newsletter-email");
   const submitBtn = document.getElementById("newsletter-submit");
   const statusEl = document.getElementById("newsletter-status");
-
-  if (!form || !emailInput || !submitBtn || !statusEl) return;
+  const embedRoot = document.getElementById("newsletter-flodesk");
 
   const setStatus = (message, type) => {
+    if (!statusEl) return;
     statusEl.hidden = !message;
     statusEl.textContent = message;
     statusEl.classList.toggle("is-success", type === "success");
@@ -70,61 +71,65 @@
 
   const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const submitToMailerLite = (actionUrl, email) =>
-    new Promise((resolve, reject) => {
-      const callbackName = `mlCb_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-      const script = document.createElement("script");
-      let settled = false;
+  const ensureFlodeskUniversal = () => {
+    // Official Flodesk header snippet pattern (assets.flodesk.com/universal).
+    window.FlodeskObject = "fd";
+    const fn = function fdQueue() {
+      (window.fd.q = window.fd.q || []).push(arguments);
+    };
+    window.fd = window.fd || fn;
 
-      const cleanup = () => {
-        window.clearTimeout(timer);
-        try {
-          delete window[callbackName];
-        } catch (_err) {
-          window[callbackName] = undefined;
-        }
-        if (script.parentNode) script.parentNode.removeChild(script);
-      };
+    if (document.querySelector("script[data-flodesk-universal]")) return;
 
-      const finish = (fn, value) => {
-        if (settled) return;
-        settled = true;
-        cleanup();
-        fn(value);
-      };
+    const firstScript = document.getElementsByTagName("script")[0];
+    const parent =
+      (firstScript && firstScript.parentNode) || document.head;
+    const version =
+      "?v=" + Math.floor(new Date().getTime() / (120 * 1000)) * 60;
+    const base = "https://assets.flodesk.com/universal";
 
-      const timer = window.setTimeout(() => {
-        finish(reject, new Error("MailerLite timeout"));
-      }, 12000);
+    const moduleScript = document.createElement("script");
+    moduleScript.async = true;
+    moduleScript.type = "module";
+    moduleScript.src = base + ".mjs" + version;
+    moduleScript.dataset.flodeskUniversal = "module";
 
-      window[callbackName] = (response) => {
-        if (response && (response.success === true || response.success === "true")) {
-          finish(resolve, response);
-          return;
-        }
-        finish(reject, response || new Error("MailerLite subscribe failed"));
-      };
+    const nomoduleScript = document.createElement("script");
+    nomoduleScript.async = true;
+    nomoduleScript.noModule = true;
+    nomoduleScript.src = base + ".js" + version;
+    nomoduleScript.dataset.flodeskUniversal = "nomodule";
 
-      let url;
-      try {
-        url = new URL(actionUrl);
-      } catch (_err) {
-        finish(reject, new Error("Invalid MailerLite form action URL"));
-        return;
-      }
+    parent.insertBefore(moduleScript, firstScript || null);
+    parent.insertBefore(nomoduleScript, firstScript || null);
+  };
 
-      url.searchParams.set("fields[email]", email);
-      url.searchParams.set("ml-submit", "1");
-      url.searchParams.set("anticsrf", "true");
-      url.searchParams.set("callback", callbackName);
+  const mountFlodeskInline = (formId) => {
+    if (!embedRoot || !form) return;
 
-      script.src = url.toString();
-      script.async = true;
-      script.onerror = () => finish(reject, new Error("MailerLite script error"));
-      document.body.appendChild(script);
+    const containerId = `fd-form-${formId}`;
+    embedRoot.innerHTML = "";
+    const container = document.createElement("div");
+    container.id = containerId;
+    embedRoot.appendChild(container);
+    embedRoot.hidden = false;
+    form.hidden = true;
+
+    ensureFlodeskUniversal();
+    window.fd("form", {
+      formId,
+      containerEl: `#${containerId}`,
     });
+  };
 
-  form.addEventListener("submit", async (event) => {
+  if (FLODESK_FORM_ID) {
+    mountFlodeskInline(FLODESK_FORM_ID.trim());
+    return;
+  }
+
+  if (!form || !emailInput || !submitBtn || !statusEl) return;
+
+  form.addEventListener("submit", (event) => {
     event.preventDefault();
     setStatus("", null);
 
@@ -135,27 +140,9 @@
       return;
     }
 
-    if (!MAILERLITE_FORM_ACTION) {
-      setStatus(
-        "Prijava još nije spojena. Piši mi na noriecreativestudio@gmail.com pa te dodam.",
-        "error"
-      );
-      return;
-    }
-
-    submitBtn.disabled = true;
-    const previousLabel = submitBtn.textContent;
-    submitBtn.textContent = "Šaljem…";
-
-    try {
-      await submitToMailerLite(MAILERLITE_FORM_ACTION, email);
-      form.reset();
-      setStatus("Hvala. Bit ćeš među prvima kad pošaljem iduću bilješku.", "success");
-    } catch (_error) {
-      setStatus("Nešto nije uspjelo. Probaj ponovo ili mi piši na mail.", "error");
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = previousLabel;
-    }
+    setStatus(
+      "Prijava još nije spojena na Flodesk. Piši mi na noriecreativestudio@gmail.com pa te dodam.",
+      "error"
+    );
   });
 })();
